@@ -73,6 +73,10 @@ class RegisterController extends Controller
             'password'   => encrypt($data['password']),
         ]);
 
+          $user
+       ->roles()
+       ->attach(\App\Role::where('name', 'admin')->first());
+
         $user->notify(new \App\Notifications\UserCreate);
 
         return $user;

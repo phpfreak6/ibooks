@@ -19,4 +19,5 @@ Auth::routes();
 
 
 
-Route::get('/home', 'HomeController@index')->name('home')->middleware('AuthAdmin');
+Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/admin-home', 'HomeController@index')->middleware('AuthAdmin');
