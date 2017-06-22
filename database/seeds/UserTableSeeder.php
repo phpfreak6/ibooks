@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Database\Seeder;
-
+use App\User;
+use App\Role;
 class UserTableSeeder extends Seeder
 {
     /**
@@ -11,24 +12,26 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
-    $role_employee = \App\Role::where('name', 'user')->first();
-    $role_manager  = \App\Role::where('name', 'admin')->first();
-    $employee = new \App\User();
-    $employee->last_name = '1';
-    $employee->first_name = 'User';
-    $employee->phone = 'User';
-    $employee->email = 'employee@example.com';
-    $employee->password = bcrypt('secret');
-    $employee->save();
-    $employee->roles()->attach($role_employee);
-    $manager = new \App\User();
+    $role_user = Role::where('name', 'user')->first();
+    $role_admin  = Role::where('name', 'admin')->first();
 
-    $manager->last_name = 'Manager Name';
-    $manager->first_name = 'Manager Name';
-    $manager->phone = 'Manager Name';
-    $manager->email = 'manager@example.com';
-    $manager->password = bcrypt('secret');
-    $manager->save();
-    $manager->roles()->attach($role_manager);
+
+    $user = new User();
+    $user->last_name = '1';
+    $user->first_name = 'User';
+    $user->phone = '+123455555';
+    $user->email = 'user@example.com';
+    $user->password = bcrypt('secret');
+    $user->save();
+    $user->roles()->attach($role_user);
+
+    $admin = new User();
+    $admin->last_name = 'Manager Name';
+    $admin->first_name = 'Manager Name';
+    $admin->phone = '+1234555551';
+    $admin->email = 'admin@example.com';
+    $admin->password = bcrypt('secret');
+    $admin->save();
+    $admin->roles()->attach($role_admin);
     }
 }

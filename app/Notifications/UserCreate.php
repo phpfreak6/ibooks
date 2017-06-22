@@ -42,8 +42,7 @@ class UserCreate extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('Welcome to Games!')
             ->greeting('Hello ' . $notifiable->first_name . ' ' . $notifiable->last_name . '!')
-            ->line('You have Joined in John Games!')
-            ->line('Your password is : ' . decrypt($notifiable->password))
+            ->line('You have Joined in Games!')
             ->action('Login', url('/'))
             ->line('Thank you for using our application!');
     }

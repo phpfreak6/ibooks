@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\Role;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Validator;
 
@@ -70,12 +71,12 @@ class RegisterController extends Controller
             'email'      => $data['email'],
             'phone'      => $data['phone'],
             'last_name'  => $data['last_name'],
-            'password'   => encrypt($data['password']),
+            'password'   => bcrypt($data['password']),
         ]);
 
-          $user
+        $user
        ->roles()
-       ->attach(\App\Role::where('name', 'admin')->first());
+       ->attach(Role::where('name', 'user')->first());
 
         $user->notify(new \App\Notifications\UserCreate);
 
