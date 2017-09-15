@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
-use App\Book;
+use App\Book; 
 use App\BooksCategoriesRelationship;
 use Illuminate\Support\Facades\DB;
 

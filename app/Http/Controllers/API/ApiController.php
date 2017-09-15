@@ -16,7 +16,7 @@ class ApiController extends Controller
 	
 	public $per_page = 100;
 	
-	
+	 
 	/**
      * Home Page .
      * @Method POST
