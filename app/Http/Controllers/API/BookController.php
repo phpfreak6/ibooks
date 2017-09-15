@@ -16,6 +16,21 @@ class BookController extends Controller
 	public $per_page = 100;
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
     /**
      * All books.
      * @Method POST

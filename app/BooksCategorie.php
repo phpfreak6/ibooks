@@ -9,10 +9,10 @@ class BooksCategorie extends Model
 	protected $table = "books_categories";
 	
 	
-	public function books()
-    {
-         return $this->belongsToMany('App\Book', 'books_categories_relationships', 'cat_id', 'book_id');
-		}
+	// public function books()
+    // {
+		// return $this->belongsToMany('App\Book', 'books_categories_relationships', 'cat_id', 'book_id');
+	// }
 	
 	
 	/* public function bookscategorie() {
