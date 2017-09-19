@@ -24,7 +24,7 @@ Route::post('register', 'API\UserController@register');  //Register
 Route::post('getAllCategories', 'API\ApiController@allcategories');   // All Categories
 Route::post('getHomeSection', 'API\ApiController@homepage');   // All Categories
 
-Route::post('getAllBooks', 'API\BookController@allbooks');
+Route::post('getAllBooks', 'API\ApiController@allbooks');
 
 Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('details', 'API\UserController@details');

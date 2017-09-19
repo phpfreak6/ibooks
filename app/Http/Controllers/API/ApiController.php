@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
+use App\OrderBook;
+use App\Order;
 use App\Book;
 use App\BooksCategorie;
 use App\BooksCategoriesRelationship;
@@ -26,29 +28,25 @@ class ApiController extends Controller
 		// https://laravel.com/docs/5.5/queries
 		
 		$sections = array();
-		// ->limit(5)
 		
 		$categories 	= BooksCategorie::get();
 		$new_launches 	= Book::orderBy('id', 'desc')->limit(5)->get();
+		$featured_books = Book::join("featured_books", "featured_books.book_id", "=", "books.id")->orderBy('featured_books.datetime', 'desc')->limit(5)->get();
+		$free_books 	= Book::where('price', 0.00)->orderBy('id', 'desc')->limit(5)->get();
+		$best_sellers 	= OrderBook::selectRaw('SUM(order_books.book_quantity) as qty, order_books.book_id, books.*')
+							->join('orders', 'orders.id', '=', 'order_books.order_id')
+							->join('books', 'books.id', '=', 'order_books.book_id')
+							->where('orders.created_at', '>=', DB::raw('DATE_SUB( CURDATE(), INTERVAL 1 DAY )') )
+							->groupBy('order_books.book_id')
+							->orderBy('qty', 'desc')
+							->get();
+					
+		$sections['categories'] = 		$categories;
+		$sections['best_sellers'] = 	$best_sellers;
+		$sections['featured_books'] = 	$featured_books;
+		$sections['new_launches'] = 	$new_launches;
+		$sections['free_books'] = 		$free_books;	
 		
-		
-		
-		
-		
-		
-		// $sections['categories'] = $categories;
-		$sections['best_sellers'] = array();
-		$sections['featured_books'] = array();
-		$sections['new_launches'] = $new_launches;
-		$sections['recently_viewed'] = array();
-		$sections['free_books'] = array();
-		$sections['discounted_books'] = array();
-		
-		
-		// $allcats = BooksCategorie::where('id','>',0)->get();
-		// echo "<pre>";
-		// print_r($allcats);
-		// echo "</pre>";exit;
 		return response()->json(array("response"=>array("status"=>"1", "message"=>"", "data"=> $sections )), $this->successStatus);
 		
 	}
@@ -68,15 +66,6 @@ class ApiController extends Controller
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
     /**
      * All books.
      * @Method POST
@@ -87,84 +76,46 @@ class ApiController extends Controller
      */
     public function allbooks()
     {
-		//Default Per page
-		$per_page = $this->per_page;		
-
-		if(!empty(request('per_page'))){
-			$per_page = request('per_page');
-		}
-		
-		/* // $books = Book::where('id','>',0)->paginate($per_page);
-		
-		// $books = DB::table('books')
-            // ->join('books_categories_relationships', 'books.id', '=', 'books_categories_relationships.book_id')
-            // ->join('books_categories', 'books_categories_relationships.cat_id', '=', 'books_categories.id')
-            // ->select('*')
-            // ->get();
-		
-		// $user_info = DB::table('usermetas')
-                 // ->select('browser', DB::raw('count(*) as total'))
-                 // ->groupBy('browser')
-                 // ->get();
-				*/ 
-				 
-		/* $books = 	DB::table('books')
-					->select("*")             
-					->join("books_categories_relationships", "books.id", "=", "books_categories_relationships.book_id")
-					->join("books_categories", "books_categories.id", "=", "books_categories_relationships.cat_id")
-					// ->where("col_name", "=",”some_value”)
-					->get();	 */
-
-		// $books1 = DB::table('books')->select("*")->join("books_categories_relationships", "books.id", "=", "books_categories_relationships.book_id")->get();
-		// $books2 = DB::table('books_categories')->select("*")->join("books_categories_relationships", "books_categories.id", "=", "books_categories_relationships.cat_id")->get();
-
-		// $books = $books2->merge($books1); */
-		
-		
-		// $books = Book::with('booksrelation','bookcats')->get();
-		
-		// $books = BooksCategoriesRelationship::with(['book','bookscategorie'])->get();
-		$books = Book::with(['categories'])->get();
-		
-		
-		return response()->json(array("response"=>array("status"=>"1", "message"=>"", "data"=> $books )), $this->successStatus);
-		
-		
-		
 		// DB::enableQueryLog();
-		
-		// $books = Book::paginate($per_page);
-		// $skip = request('limit')*request('offset');
-		// $skip = request('limit');
-		// $limit = $count - $skip; // the limit
-		
-		// $count = Book::count();
-		// $take = 2;
-		// $skip = $count - $take;
+		$books = Book::with(['categories']);
+		if(!empty(request('bookid'))){
+			
+			$bookid = request('bookid');
+			$books  = $books->where('id','=',$bookid)->first();
+			
+		}
+		else{
+			
+			if(!empty(request('catids'))){	
+				$catids = request('catids');					
+				// $catids = explode(',', $catids);
+					
+				$books = $books->whereHas('categories', function($q) use ($catids) { $q->whereIn( 'cat_id', $catids ); });
+				
+				// print_r($catids );
+			}
 
-		// $currentPage = request('offset'); // Default to 1
+			if(!empty(request('search'))){
+				
+				$search = request('search');
+				$books  = $books->where('title','like','%'.$search.'%');
+				
+			}
 
-		// $books = Book::latest('created_at')->take(3)->skip($skip + (($currentPage - 1) * $take));
-		
-		// $books = DB::table('books')->skip( request('offset') )->take(  request('limit') )->get();
-		// echo "<pre>";
-		
-		// print_r(DB::getQueryLog());
-		
-		
-		// $books = Book::skip($skip)->paginate(request('offset'))->get();
-		
-		// echo "<pre>";
-		// print_r($books);
-		// echo "</pre>";exit;
-		// $books = Book::all()->offset( request('offset') )->limit( request('limit') )->get();
-		// $books =  DB::table('books')->offset( request('offset') )->limit( request('limit') )->get();
-		// $books = Book::take( request('limit') )->offset( request('offset') )->get();
-		// $books = Book::take( request('limit') )->skip( request('offset') )->get();
-		// $books = DB::table('books')->skip( request('offset') )->take(  request('limit') )->get();
-		
-		// return response()->json(array("response"=>array("status"=>"1", "message"=>"Logged in sucessfully!!", "data"=>$books)), $this->successStatus);
-		
+			
+			
+			
+			$books  = $books->get();
+			// echo '<pre>';
+			// print_r(DB::getQueryLog());
+			// echo '</pre>';
+			
+		}
+		/* else{
+			$books  = Book::with(['categories'])->get();
+		}*/
+				
+		return response()->json(array("response"=>array("status"=>"1", "message"=>"", "data"=> $books )), $this->successStatus);
 		
     }
 
